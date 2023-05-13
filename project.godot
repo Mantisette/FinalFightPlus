@@ -11,7 +11,12 @@ config_version=4
 [application]
 
 config/name="FinalFight++"
+run/main_scene="res://escenas/juego.tscn"
 config/icon="res://icon.png"
+
+[display]
+
+window/size/width=800
 
 [gui]
 
