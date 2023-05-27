@@ -21,6 +21,9 @@ const TILES = {
 func _ready():
   randomize()
   generate()
+  
+  Global.map = _save_map()
+  Global.first_floor = _find_first_floor()
 
 func generate():
   # Setters
@@ -35,3 +38,23 @@ func generate():
 
 func _regen(_x: int):
   generate()
+
+func _find_first_floor():
+  for y in range(0, self.height_gen):
+    for x in range(0, self.width_gen):
+      if get_cell(x, y) == TILES.suelo:
+        return Vector2(float(x), float(y))
+
+func _save_map():
+  var map = []
+
+  for x in range(height_gen):
+    var col = []
+    col.resize(width_gen)
+    map.append(col)
+
+  for y in range(0, self.height_gen):
+    for x in range(0, self.width_gen):
+      map[y][x] = get_cell(x, y)
+
+  return map
