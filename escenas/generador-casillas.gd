@@ -1,13 +1,13 @@
 extends TileMap
 
 # Límites de generación
-export(int) var width_gen = 30
-export(int) var height_gen = 20
+export(int) var width_gen = 32
+export(int) var height_gen = 24
 
 # Parámetros de generación
-export(int) var octaves = 3
-export(int) var period = 3
-export(float) var persistence = 0.7
+export(int) var octaves = 0
+export(int) var period = 6
+export(float) var persistence = 0.2
 
 export(bool) var regen setget _regen
 
