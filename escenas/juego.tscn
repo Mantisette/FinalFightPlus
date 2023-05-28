@@ -53,8 +53,8 @@ tile_set = SubResource( 2 )
 cell_size = Vector2( 16, 16 )
 format = 1
 script = ExtResource( 1 )
-period = -153
-persistence = 0.865
+period = -428
+persistence = 0.54
 
 [node name="Camara" type="Camera2D" parent="."]
 anchor_mode = 0
@@ -62,9 +62,9 @@ current = true
 zoom = Vector2( 0.65, 0.65 )
 
 [node name="Jugador" parent="." groups=["Combate"] instance=ExtResource( 3 )]
+position = Vector2( 8, 8 )
 
 [node name="Musica" parent="." groups=["MusicaCombate"] instance=ExtResource( 4 )]
-visible = false
 
 [node name="Enemigo" parent="." groups=["Combate", "MusicaCombate"] instance=ExtResource( 5 )]
-position = Vector2( 260, 200 )
+position = Vector2( 264, 200 )
