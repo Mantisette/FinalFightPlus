@@ -18,18 +18,21 @@ const TILES = {
   'pared': 1
 }
 
+
 func _ready():
   randomize()
-  generate()
+  _generate()
   
   Global.map = _save_map()
   Global.first_floor = _find_first_floor()
+
 
 func _unhandled_input(event):
   if Input.is_key_pressed(KEY_F5):
     _regen(0)
 
-func generate():
+
+func _generate():
   # Setters
   noise.seed = randi()
   noise.octaves = self.octaves
@@ -40,14 +43,16 @@ func generate():
     for y in range(0, self.height_gen):
       set_cell(x, y, noise.get_noise_2d(x, y) + 1)
 
+
 func _regen(_x: int):
-  generate()
+  _generate()
 
 func _find_first_floor():
   for y in range(0, self.height_gen):
     for x in range(0, self.width_gen):
       if get_cell(x, y) == TILES.suelo:
         return Vector2(float(x), float(y))
+
 
 func _save_map():
   var map = []

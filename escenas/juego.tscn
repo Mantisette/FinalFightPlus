@@ -1,9 +1,10 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://scripts/mapa.gd" type="Script" id=1]
 [ext_resource path="res://tiles/tileset-terreno.png" type="Texture" id=2]
 [ext_resource path="res://escenas/jugador.tscn" type="PackedScene" id=3]
 [ext_resource path="res://escenas/musica.tscn" type="PackedScene" id=4]
+[ext_resource path="res://escenas/enemigo.tscn" type="PackedScene" id=5]
 
 [sub_resource type="ConvexPolygonShape2D" id=3]
 points = PoolVector2Array( 0, 0, 16, 0, 16, 16, 0, 16 )
@@ -60,7 +61,10 @@ anchor_mode = 0
 current = true
 zoom = Vector2( 0.65, 0.65 )
 
-[node name="Jugador" parent="." instance=ExtResource( 3 )]
-position = Vector2( 0, 0 )
+[node name="Jugador" parent="." groups=["Combate"] instance=ExtResource( 3 )]
 
-[node name="Musica" parent="." instance=ExtResource( 4 )]
+[node name="Musica" parent="." groups=["MusicaCombate"] instance=ExtResource( 4 )]
+visible = false
+
+[node name="Enemigo" parent="." groups=["Combate", "MusicaCombate"] instance=ExtResource( 5 )]
+position = Vector2( 260, 200 )
