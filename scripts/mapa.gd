@@ -22,7 +22,7 @@ const TILES = {
 func _ready():
   randomize()
   _generate()
-  
+
   Global.map = _save_map()
   Global.first_floor = _find_first_floor()
 

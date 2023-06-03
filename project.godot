@@ -25,6 +25,7 @@ window/size/width=800
 [global]
 
 pixel=false
+scene=false
 
 [gui]
 
