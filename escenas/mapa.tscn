@@ -45,7 +45,6 @@ points = PoolVector2Array( 0, 0, 16, 0, 16, 16, 0, 16 )
 
 [node name="GeneradorMapas" type="Node2D"]
 script = ExtResource( 2 )
-INITIAL_LIFE_CHANCE = 0.415
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = SubResource( 2 )

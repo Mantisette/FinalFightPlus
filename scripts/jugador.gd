@@ -22,9 +22,6 @@ func _ready():
   health = MAX_HEALTH
   label.text = str(health)
 
-  position = Global.first_floor * Global.TILE_SIZE
-  position += Vector2(Global.TILE_SIZE / 2, Global.TILE_SIZE / 2)
-
 func _unhandled_input(event):
   for dir in movement.keys():
     if event.is_action_pressed(dir):
@@ -39,3 +36,8 @@ func move(dir):
 func jugador_damage():
   self.health -= 1
   label.text = str(health)
+
+
+func _on_map_ready():
+  position = Global.player_spawn * Global.TILE_SIZE
+  position += Vector2(Global.TILE_SIZE / 2, Global.TILE_SIZE / 2)
