@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/jugador.png-db77a085deee23d53012c6186e205d6e.stex"
+path="res://.import/jugador.png-daff20e8c0cdd210730409819ecfaca7.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://tiles/jugador.png"
-dest_files=[ "res://.import/jugador.png-db77a085deee23d53012c6186e205d6e.stex" ]
+source_file="res://Tiles/jugador.png"
+dest_files=[ "res://.import/jugador.png-daff20e8c0cdd210730409819ecfaca7.stex" ]
 
 [params]
 

@@ -11,12 +11,12 @@ config_version=4
 [application]
 
 config/name="FinalFight++"
-run/main_scene="res://escenas/Game.tscn"
+run/main_scene="res://Scenes/Game.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
-Global="*res://scripts/global.gd"
+global="*res://Scripts/global.gd"
 
 [display]
 
