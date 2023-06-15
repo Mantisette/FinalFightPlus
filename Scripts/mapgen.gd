@@ -19,22 +19,25 @@ export var BIRTH_LIMIT = 4
 export var DEATH_LIMIT = 3
 
 var cellmap := []
-var astar = AStar2D.new()
+var astar := AStar2D.new()
+var astar_point_id_count := 0
 onready var tilemap := $TileMap
 
 signal map_ready
 
-func _ready():
+func _ready():  
   randomize()
   _generate_grid()
   _generate_map()
   for _x in range(STEPS): # Shape the og grid into a cave-looking map
     _simulation_step()
+  _close_borders()
   _print_map()
   global.map = cellmap
 
   global.player_spawn = _random_spawn()
   global.exit_spawn = _random_spawn()
+  _pathfind_player_exit(global.player_spawn, global.exit_spawn)
   emit_signal("map_ready")
 
 
@@ -118,6 +121,17 @@ func _count_alive_neighbors(x: int, y: int) -> int:
   return count_alive
 
 
+func _close_borders():
+  # Horizontal borders
+  for x in MAP_WIDTH:
+    tilemap.set_cell(x, -1, 1)
+    tilemap.set_cell(x, MAP_HEIGHT, 1)
+  # Vertical borders
+  for y in MAP_HEIGHT:
+    tilemap.set_cell(-1, y, 1)
+    tilemap.set_cell(MAP_WIDTH, y, 1)
+
+
 # Prints the map onto the screen using its tilemap
 func _print_map():
   for x in MAP_WIDTH:
@@ -137,5 +151,28 @@ func _random_spawn() -> Vector2:
     is_tile_available = cellmap[spawn_x][spawn_y]
 
   var spawn = Vector2(spawn_x, spawn_y)
-  print (spawn)
   return spawn
+
+
+func _pathfind_player_exit(player: Vector2, exit: Vector2) -> bool:
+  astar.clear()
+  astar_point_id_count = 0
+  _create_points()
+  # Connect dots with flood fill
+  # find path
+  return true
+
+
+func _create_points():
+  for x in MAP_WIDTH:
+    for y in MAP_HEIGHT:
+      if cellmap[x][y] == 0:
+        astar_point_id_count += 1
+        astar.add_point(
+          astar.get_available_point_id(),
+          global.tile_to_pixel_center(Vector2(x, y))
+        )
+
+
+func _on_exit_reached():
+  _ready()

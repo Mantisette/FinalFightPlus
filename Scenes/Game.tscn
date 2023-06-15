@@ -6,11 +6,13 @@
 
 [node name="Game" type="Node2D"]
 
-[node name="Mapgen" parent="." groups=["spawn"] instance=ExtResource( 1 )]
+[node name="Mapgen" parent="." instance=ExtResource( 1 )]
 
-[node name="Player" parent="." groups=["spawn"] instance=ExtResource( 2 )]
+[node name="Player" parent="." instance=ExtResource( 2 )]
 
-[node name="Exit" parent="." groups=["spawn"] instance=ExtResource( 3 )]
+[node name="Exit" parent="." instance=ExtResource( 3 )]
 
 [connection signal="map_ready" from="Mapgen" to="Player" method="_on_map_ready"]
 [connection signal="map_ready" from="Mapgen" to="Exit" method="_on_map_ready"]
+[connection signal="exit_reached" from="Exit" to="Mapgen" method="_on_exit_reached"]
+[connection signal="exit_reached" from="Exit" to="Player" method="_on_exit_reached"]

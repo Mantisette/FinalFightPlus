@@ -1,3 +1,4 @@
+class_name Player
 extends Area2D
 
 const MAX_HEALTH = 5
@@ -23,8 +24,7 @@ var movement = {
 }
 
 func _ready():
-  health = MAX_HEALTH
-  label.text = str(health)
+  pass
 
 func _unhandled_input(event):
   for dir in movement.keys():
@@ -32,19 +32,19 @@ func _unhandled_input(event):
       move(dir)
 
 func move(dir):
+  var destination = global.tile_to_pixel(movement[dir])
+  var collisions = 0
+
   for key in raycasts:
     var ray = raycasts[key]
-    ray.cast_to = movement[dir] * global.TILE_SIZE
+    ray.cast_to = destination
     ray.force_raycast_update()
     if ray.is_colliding():
-      return
+      collisions += 1
 
-  position += movement[dir] * global.TILE_SIZE
-#
-#  raycast.cast_to = movement[dir] * Global.TILE_SIZE
-#  raycast.force_raycast_update()
-#  if !raycast.is_colliding():
-#    
+  if collisions < 3:
+    position += destination
+
 
 func jugador_damage():
   self.health -= 1
@@ -52,5 +52,8 @@ func jugador_damage():
 
 
 func _on_map_ready():
-  position = global.player_spawn * global.TILE_SIZE
-  position += Vector2(global.HALF_TILE, global.HALF_TILE)
+  position = global.tile_to_pixel_center(global.player_spawn)
+
+
+func _on_exit_reached():
+  print("i got a point!")

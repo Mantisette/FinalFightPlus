@@ -19,10 +19,10 @@ shape = SubResource( 1 )
 cast_to = Vector2( 0, 0 )
 
 [node name="RayRight" type="RayCast2D" parent="."]
-position = Vector2( 1, 1 )
+position = Vector2( 1, 0 )
 
 [node name="RayLeft" type="RayCast2D" parent="."]
-position = Vector2( -1, -1 )
+position = Vector2( -1, 0 )
 
 [node name="Label" type="Label" parent="."]
 margin_left = -10.0
