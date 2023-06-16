@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/calm-8-CoQ.mp3-933fff3bcfabac06fa98644bc752ce0c.mp3str"
+
+[deps]
+
+source_file="res://4-Music/calm-8-CoQ.mp3"
+dest_files=[ "res://.import/calm-8-CoQ.mp3-933fff3bcfabac06fa98644bc752ce0c.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0
