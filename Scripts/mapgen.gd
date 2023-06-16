@@ -19,13 +19,13 @@ export var BIRTH_LIMIT = 4
 export var DEATH_LIMIT = 3
 
 var cellmap := []
-var astar := AStar2D.new()
-var astar_point_id_count := 0
 onready var tilemap := $TileMap
-
 signal map_ready
 
-func _ready():  
+func _ready():
+  global.MAP_WIDTH = self.MAP_WIDTH
+  global.MAP_HEIGHT = self.MAP_HEIGHT
+
   randomize()
   _generate_grid()
   _generate_map()
@@ -37,7 +37,11 @@ func _ready():
 
   global.player_spawn = _random_spawn()
   global.exit_spawn = _random_spawn()
-  _pathfind_player_exit(global.player_spawn, global.exit_spawn)
+
+#  astar_pathfind._ready()
+#  astar_pathfind.find_path(global.player_spawn, global.exit_spawn)
+#  _pathfind_player_exit(global.player_spawn, global.exit_spawn)
+
   emit_signal("map_ready")
 
 
@@ -105,21 +109,26 @@ func _count_alive_neighbors(x: int, y: int) -> int:
 
   for i in range(-1, 2):
     for j in range(-1, 2):
-      var relative_x = x + i
-      var relative_y = y + j
+      var local_x = x + i
+      var local_y = y + j
 
       if (i == 0 and j == 0):
         # We're checking our own tile
         continue
-      elif (relative_x < 0 or relative_y < 0
-        or relative_x >= MAP_WIDTH or relative_y >= MAP_HEIGHT):
+      elif (_is_tile_off_bounds(Vector2(local_x, local_y))):
         # The tile to check is off-limits, count that as a wall
         count_alive += 1
-      elif (cellmap[relative_x][relative_y]):
+      elif (cellmap[local_x][local_y]):
         count_alive += 1
 
   return count_alive
 
+
+func _is_tile_off_bounds(tile: Vector2) -> bool:
+  return (
+      tile.x < 0 or tile.x >= MAP_WIDTH or
+      tile.y < 0 or tile.y >= MAP_HEIGHT
+    )
 
 func _close_borders():
   # Horizontal borders
@@ -152,26 +161,6 @@ func _random_spawn() -> Vector2:
 
   var spawn = Vector2(spawn_x, spawn_y)
   return spawn
-
-
-func _pathfind_player_exit(player: Vector2, exit: Vector2) -> bool:
-  astar.clear()
-  astar_point_id_count = 0
-  _create_points()
-  # Connect dots with flood fill
-  # find path
-  return true
-
-
-func _create_points():
-  for x in MAP_WIDTH:
-    for y in MAP_HEIGHT:
-      if cellmap[x][y] == 0:
-        astar_point_id_count += 1
-        astar.add_point(
-          astar.get_available_point_id(),
-          global.tile_to_pixel_center(Vector2(x, y))
-        )
 
 
 func _on_exit_reached():
