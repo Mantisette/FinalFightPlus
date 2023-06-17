@@ -19,8 +19,10 @@ onready var raycasts = {
 
 var player_detected := false
 
+signal spawned
 signal combat_music
 signal calm_music
+
 # signal attack_player
 
 func _process(_delta):
@@ -59,4 +61,6 @@ func _on_DetectionArea_exited(area):
 
 
 func _on_map_ready():
-  position = global.tile_to_pixel_center(global.random_spawn())
+  var spawn_pos = global.tile_to_pixel_center(global.random_spawn())
+  position = spawn_pos
+  emit_signal("spawned", spawn_pos)

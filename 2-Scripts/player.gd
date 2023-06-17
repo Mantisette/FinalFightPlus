@@ -22,8 +22,8 @@ var movement = {
   "move_NW": Vector2.UP + Vector2.LEFT,
 }
 
-func _ready():
-  pass
+signal spawned
+
 
 func _unhandled_input(event):
   for dir in movement.keys():
@@ -46,7 +46,9 @@ func move(dir):
 
 
 func _on_map_ready():
-  position = global.tile_to_pixel_center(global.random_spawn())
+  var spawn_pos = global.tile_to_pixel_center(global.random_spawn())
+  position = spawn_pos
+  emit_signal("spawned", spawn_pos)
 
 
 func _on_exit_reached():

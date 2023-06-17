@@ -12,8 +12,6 @@ var DIRECTIONS = [
   Vector2.UP + Vector2.LEFT
 ]
 
-export var MAP_WIDTH := 48
-export var MAP_HEIGHT := 36
 export var INITIAL_LIFE_CHANCE := 0.375
 export var BIRTH_LIMIT = 4
 export var DEATH_LIMIT = 3
@@ -22,24 +20,41 @@ var cellmap := []
 onready var tilemap := $TileMap
 signal map_ready
 
-func _ready():
-  global.MAP_WIDTH = self.MAP_WIDTH
-  global.MAP_HEIGHT = self.MAP_HEIGHT
+onready var player_spawn_pos: Vector2
+onready var exit_spawn_pos: Vector2
+onready var enemy_spawn_pos: Vector2
 
+
+func _ready():
   randomize()
   _generate_grid()
   _generate_map()
+
   for _x in range(STEPS): # Shape the og grid into a cave-looking map
     _simulation_step()
   _close_borders()
-  _print_map()
-  global.map = cellmap
 
-#  astar_pathfind._ready()
-#  astar_pathfind.find_path(global.player_spawn, global.exit_spawn)
-#  _pathfind_player_exit(global.player_spawn, global.exit_spawn)
+  _print_map()
+  global.cellmap = cellmap
+
+  global.astar_ready()
 
   emit_signal("map_ready")
+  
+  if !_check_spawn_positions():
+    return
+  var player_path = global.astar_find_path(player_spawn_pos, exit_spawn_pos)
+  var enemy_path = global.astar_find_path(enemy_spawn_pos, player_spawn_pos)
+  if player_path == [] or enemy_path == []:
+    _ready()
+
+
+func _process(_delta):
+  pass
+
+
+func _check_spawn_positions() -> bool:
+  return (player_spawn_pos != null and exit_spawn_pos != null and enemy_spawn_pos != null)
 
 
 # Debug keys to test and tweak with the mapgen
@@ -58,16 +73,16 @@ func _unhandled_input(event):
 
 # Creates a 2D Array grid
 func _generate_grid():
-  for i in MAP_WIDTH:
+  for i in global.MAP_WIDTH:
     cellmap.append([])
-    for j in MAP_HEIGHT:
+    for j in global.MAP_HEIGHT:
       cellmap[i].append(0)
 
 
 # Populates the grid with random values
 func _generate_map():
-  for x in range(MAP_WIDTH):
-    for y in range(MAP_HEIGHT):
+  for x in range(global.MAP_WIDTH):
+    for y in range(global.MAP_HEIGHT):
       if randf() < INITIAL_LIFE_CHANCE:
         cellmap[x][y] = 1
       else:
@@ -79,8 +94,8 @@ func _generate_map():
 func _simulation_step():
   var cellmap_process = cellmap.duplicate(true)
 
-  for x in MAP_WIDTH:
-    for y in MAP_HEIGHT:
+  for x in global.MAP_WIDTH:
+    for y in global.MAP_HEIGHT:
       var current_tile = cellmap_process[x][y]
       var neighbors = _count_alive_neighbors(x, y)
       if (cellmap[x][y] == 1):
@@ -112,7 +127,7 @@ func _count_alive_neighbors(x: int, y: int) -> int:
       if (i == 0 and j == 0):
         # We're checking our own tile
         continue
-      elif (_is_tile_off_bounds(Vector2(local_x, local_y))):
+      elif (global.is_tile_off_bounds(Vector2(local_x, local_y))):
         # The tile to check is off-limits, count that as a wall
         count_alive += 1
       elif (cellmap[local_x][local_y]):
@@ -121,29 +136,35 @@ func _count_alive_neighbors(x: int, y: int) -> int:
   return count_alive
 
 
-func _is_tile_off_bounds(tile: Vector2) -> bool:
-  return (
-      tile.x < 0 or tile.x >= MAP_WIDTH or
-      tile.y < 0 or tile.y >= MAP_HEIGHT
-    )
-
 func _close_borders():
   # Horizontal borders
-  for x in MAP_WIDTH:
+  for x in global.MAP_WIDTH:
     tilemap.set_cell(x, -1, 1)
-    tilemap.set_cell(x, MAP_HEIGHT, 1)
+    tilemap.set_cell(x, global.MAP_HEIGHT, 1)
   # Vertical borders
-  for y in MAP_HEIGHT:
+  for y in global.MAP_HEIGHT:
     tilemap.set_cell(-1, y, 1)
-    tilemap.set_cell(MAP_WIDTH, y, 1)
+    tilemap.set_cell(global.MAP_WIDTH, y, 1)
 
 
 # Prints the map onto the screen using its tilemap
 func _print_map():
-  for x in MAP_WIDTH:
-    for y in MAP_HEIGHT:
+  for x in global.MAP_WIDTH:
+    for y in global.MAP_HEIGHT:
       tilemap.set_cell(x, y, cellmap[x][y])
 
 
 func _on_exit_reached():
   _ready()
+
+
+func _on_Player_spawned(position: Vector2):
+  player_spawn_pos = position
+
+
+func _on_Exit_spawned(position: Vector2):
+  exit_spawn_pos = position
+
+
+func _on_Enemy_spawned(position: Vector2):
+  enemy_spawn_pos = position
