@@ -15,7 +15,6 @@
 [node name="Exit" parent="." instance=ExtResource( 3 )]
 
 [node name="Enemy" parent="." instance=ExtResource( 4 )]
-position = Vector2( 400, 277 )
 
 [node name="Music" parent="." instance=ExtResource( 5 )]
 

@@ -25,3 +25,8 @@ cast_to = Vector2( 0, 0 )
 [node name="RayLeft" type="RayCast2D" parent="."]
 position = Vector2( -1, 0 )
 cast_to = Vector2( 0, 0 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
+zoom = Vector2( 0.35, 0.35 )
+smoothing_enabled = true

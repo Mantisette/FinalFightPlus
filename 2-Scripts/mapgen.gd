@@ -49,10 +49,6 @@ func _ready():
     _ready()
 
 
-func _process(_delta):
-  pass
-
-
 func _check_spawn_positions() -> bool:
   return (player_spawn_pos != null and exit_spawn_pos != null and enemy_spawn_pos != null)
 
