@@ -21,6 +21,7 @@ position = Vector2( 400, 277 )
 
 [connection signal="map_ready" from="Mapgen" to="Player" method="_on_map_ready"]
 [connection signal="map_ready" from="Mapgen" to="Exit" method="_on_map_ready"]
+[connection signal="map_ready" from="Mapgen" to="Enemy" method="_on_map_ready"]
 [connection signal="map_ready" from="Mapgen" to="Music" method="_on_map_ready"]
 [connection signal="exit_reached" from="Exit" to="Mapgen" method="_on_exit_reached"]
 [connection signal="exit_reached" from="Exit" to="Player" method="_on_exit_reached"]

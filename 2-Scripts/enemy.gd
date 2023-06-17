@@ -56,3 +56,7 @@ func _on_DetectionArea_exited(area):
   if area is Player:
     player_detected = false
     emit_signal("calm_music")
+
+
+func _on_map_ready():
+  position = global.tile_to_pixel_center(global.random_spawn())

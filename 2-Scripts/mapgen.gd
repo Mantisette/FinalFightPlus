@@ -35,9 +35,6 @@ func _ready():
   _print_map()
   global.map = cellmap
 
-  global.player_spawn = _random_spawn()
-  global.exit_spawn = _random_spawn()
-
 #  astar_pathfind._ready()
 #  astar_pathfind.find_path(global.player_spawn, global.exit_spawn)
 #  _pathfind_player_exit(global.player_spawn, global.exit_spawn)
@@ -146,21 +143,6 @@ func _print_map():
   for x in MAP_WIDTH:
     for y in MAP_HEIGHT:
       tilemap.set_cell(x, y, cellmap[x][y])
-
-
-# Selects a random spawn position for a thing
-func _random_spawn() -> Vector2:
-  var spawn_x: int
-  var spawn_y: int
-  var is_tile_available = 1 # wall
-
-  while is_tile_available:
-    spawn_x = randi() % MAP_WIDTH
-    spawn_y = randi() % MAP_HEIGHT
-    is_tile_available = cellmap[spawn_x][spawn_y]
-
-  var spawn = Vector2(spawn_x, spawn_y)
-  return spawn
 
 
 func _on_exit_reached():

@@ -19,7 +19,7 @@ func _process(_delta):
 
 
 func _on_map_ready():
-  position = global.tile_to_pixel_center(global.exit_spawn)
+  position = global.tile_to_pixel_center(global.random_spawn())
 
 
 func _on_ExitArea_entered(area):
