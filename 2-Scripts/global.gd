@@ -45,15 +45,6 @@ func random_spawn() -> Vector2:
   return spawn
 
 
-
-
-
-
-
-
-
-
-
 # astar things
 
 onready var astar_node = AStar.new()
@@ -70,16 +61,6 @@ func astar_ready():
   astar_node.clear()
   var walkable_cells_list = astar_add_walkable_cells()
   astar_connect_walkable_cells(walkable_cells_list)
-
-
-# Click and Shift force the start and end position of the path to update
-# and the node to redraw everything
-#func _input(event):
-#	if event.is_action_pressed('click') and Input.is_key_pressed(KEY_SHIFT):
-#		# To call the setter method from this script we have to use the explicit self.
-#		self.path_start_position = world_to_map(get_global_mouse_position())
-#	elif event.is_action_pressed('click'):
-#		self.path_end_position = world_to_map(get_global_mouse_position())
 
 
 # Loops through all cells within the map's bounds and
@@ -154,31 +135,11 @@ func astar_find_path(start, end):
 
 
 func _recalculate_path():
-  astar_clear_previous_path_drawing()
   var start_point_index = astar_calculate_point_index(path_start_position)
   var end_point_index = astar_calculate_point_index(path_end_position)
   # This method gives us an array of points. Note you need the start and end
   # points' indices as input
   _point_path = astar_node.get_point_path(start_point_index, end_point_index)
-
-
-func astar_clear_previous_path_drawing():
-  if not _point_path:
-    return
-  var point_start = _point_path[0]
-  var point_end = _point_path[len(_point_path) - 1]
-
-
-func _draw():
-  if not _point_path:
-    return
-  var point_start = _point_path[0]
-  var point_end = _point_path[len(_point_path) - 1]
-
-  var last_point = tile_to_pixel_center(point_start)
-  for index in range(1, len(_point_path)):
-    var current_point = tile_to_pixel_center(Vector2(_point_path[index].x, _point_path[index].y))
-    last_point = current_point
 
 
 # Setters for the start and end path values.
