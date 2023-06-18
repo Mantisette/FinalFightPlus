@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/combat-3-larnii.mp3-b667162e472b8fe900ff91f81891b71e.mp3str"
+
+[deps]
+
+source_file="res://musica/combat-3-larnii.mp3"
+dest_files=[ "res://.import/combat-3-larnii.mp3-b667162e472b8fe900ff91f81891b71e.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

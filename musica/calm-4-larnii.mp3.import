@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/calm-4-larnii.mp3-9b79ef01fd8ae39bbe789ded2b79a264.mp3str"
+
+[deps]
+
+source_file="res://musica/calm-4-larnii.mp3"
+dest_files=[ "res://.import/calm-4-larnii.mp3-9b79ef01fd8ae39bbe789ded2b79a264.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0

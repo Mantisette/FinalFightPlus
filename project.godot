@@ -12,7 +12,7 @@ _global_script_classes=[ {
 "base": "Area2D",
 "class": "Jugador",
 "language": "GDScript",
-"path": "res://2-Scripts/jugador.gd"
+"path": "res://scripts/jugador.gd"
 } ]
 _global_script_class_icons={
 "Jugador": ""
@@ -21,12 +21,12 @@ _global_script_class_icons={
 [application]
 
 config/name="FinalFight++"
-run/main_scene="res://1-Escenas/juego.tscn"
+run/main_scene="res://escenas/juego.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
-global="*res://2-Scripts/global.gd"
+global="*res://scripts/global.gd"
 
 [display]
 

@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/shaker.mp3-b456c55a4efa2f49923b7e28bb7c7782.mp3str"
+
+[deps]
+
+source_file="res://fx/shaker.mp3"
+dest_files=[ "res://.import/shaker.mp3-b456c55a4efa2f49923b7e28bb7c7782.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0
