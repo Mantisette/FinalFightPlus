@@ -22,6 +22,10 @@ signal spawn
 var puntos := 0
 
 
+func _process(_delta):
+  var lblpuntos = $Puntos
+  lblpuntos.text = str(puntos)
+
 func _unhandled_input(event):
   for direccion in MOVIMIENTOS.keys():
     if event.is_action_pressed(direccion):

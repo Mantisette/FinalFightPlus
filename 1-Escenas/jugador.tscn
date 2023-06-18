@@ -29,3 +29,11 @@ cast_to = Vector2( 0, 0 )
 [node name="Camara" type="Camera2D" parent="."]
 current = true
 zoom = Vector2( 0.35, 0.35 )
+
+[node name="Puntos" type="Label" parent="."]
+margin_left = -8.0
+margin_top = 8.0
+margin_right = 8.0
+margin_bottom = 22.0
+align = 1
+valign = 1
