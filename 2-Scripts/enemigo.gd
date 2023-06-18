@@ -12,9 +12,9 @@ signal musica_combate
 
 
 func _on_Mapgen_preparado():
-  var spawn_pos = global.casilla_a_pixeles_centro(global.random_spawn())
-  position = spawn_pos
-  emit_signal("spawn", spawn_pos)
+  var spawn = global.casilla_a_pixeles_centro(global.random_spawn())
+  position = spawn
+  emit_signal("spawn", spawn)
 
 
 func _on_AreaDeteccion_area_entered(area):

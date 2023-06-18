@@ -1,165 +1,154 @@
 extends Node2D
 
-const STEPS = 3
-var DIRECTIONS = [
-  Vector2.UP,
-  Vector2.UP + Vector2.RIGHT,
-  Vector2.RIGHT,
-  Vector2.DOWN + Vector2.RIGHT,
-  Vector2.DOWN,
-  Vector2.DOWN + Vector2.LEFT,
-  Vector2.LEFT,
-  Vector2.UP + Vector2.LEFT
-]
+const SIMULACIONES = 3
 
-export var INITIAL_LIFE_CHANCE := 0.375
-export var BIRTH_LIMIT = 4
-export var DEATH_LIMIT = 3
+export var PROBABILIDAD_INICIAL := 0.375
+export var LIMITE_VIDA = 4
+export var LIMITE_MUERTE = 3
 
 var cellmap := []
 onready var tilemap := $TileMap
 signal preparado
 
-onready var player_spawn_pos: Vector2
-onready var exit_spawn_pos: Vector2
-onready var enemy_spawn_pos: Vector2
+onready var spawn_jugador: Vector2
+onready var spawn_salida: Vector2
+onready var spawn_enemigo: Vector2
 
 
 func _ready():
   randomize()
-  _generate_grid()
-  _generate_map()
+  _generar_matriz()
+  _generar_mapa()
 
-  for _x in range(STEPS): # Shape the og grid into a cave-looking map
-    _simulation_step()
-  _close_borders()
+  for _x in range(SIMULACIONES):
+    _simulacion()
+  _cerrar_limites()
 
-  _print_map()
+  _dibujar_mapa()
   global.cellmap = cellmap
 
   global.astar_ready()
 
   emit_signal("preparado")
   
-  if !_check_spawn_positions():
+  if !_spawn_preparado():
     return
-  var player_path = global.astar_find_path(player_spawn_pos, exit_spawn_pos)
-  var enemy_path = global.astar_find_path(enemy_spawn_pos, player_spawn_pos)
-  if player_path == [] or enemy_path == []:
+  var path_jugador = global.astar_find_path(spawn_jugador, spawn_salida)
+  var path_enemigo = global.astar_find_path(spawn_enemigo, spawn_jugador)
+  if path_jugador == [] or path_enemigo == []:
     _ready()
 
 
-func _check_spawn_positions() -> bool:
-  return (player_spawn_pos != null and exit_spawn_pos != null and enemy_spawn_pos != null)
+func _spawn_preparado() -> bool:
+  return (spawn_jugador != null and spawn_salida != null and spawn_enemigo != null)
 
 
-# Debug keys to test and tweak with the mapgen
+# Debug, para probar el algoritmo
 func _unhandled_input(event):
   if event.is_action_pressed("key_f1"):
-    _generate_map()
-    _print_map()
+    _generar_mapa()
+    _dibujar_mapa()
 
   if event.is_action_pressed("key_f2"):
-    _simulation_step()
-    _print_map()
+    _simulacion()
+    _dibujar_mapa()
 
   if event.is_action_pressed("key_f3"):
     _ready()
 
 
-# Creates a 2D Array grid
-func _generate_grid():
+# Crea una matriz 2D
+func _generar_matriz():
   for i in global.MAPA_ANCHO:
     cellmap.append([])
     for j in global.MAPA_ALTO:
       cellmap[i].append(0)
 
 
-# Populates the grid with random values
-func _generate_map():
+# Rellena la matriz 2D con valores aleatorios según la regla inicial
+func _generar_mapa():
   for x in range(global.MAPA_ANCHO):
     for y in range(global.MAPA_ALTO):
-      if randf() < INITIAL_LIFE_CHANCE:
+      if randf() < PROBABILIDAD_INICIAL:
         cellmap[x][y] = 1
       else:
         cellmap[x][y] = 0
 
 
-# Runs the GoL ruleset (see variables) on the current map
-# Returns the resulting map
-func _simulation_step():
-  var cellmap_process = cellmap.duplicate(true)
+# Hace una simulación del juego de la vida con el mapa actual. Sustituye el mapa resultante al terminar
+func _simulacion():
+  var cellmap_proc = cellmap.duplicate(true)
 
   for x in global.MAPA_ANCHO:
     for y in global.MAPA_ALTO:
-      var current_tile = cellmap_process[x][y]
-      var neighbors = _count_alive_neighbors(x, y)
+      var casilla = cellmap_proc[x][y]
+      var vecinos = _contar_vecinos_vivos(x, y)
       if (cellmap[x][y] == 1):
-        # Tile's alive, changes by death rules
-        if (neighbors < DEATH_LIMIT):
-          current_tile = 0
+        # La casilla está viva (es un muro), cambia según las reglas de la muerte
+        if (vecinos < LIMITE_MUERTE):
+          casilla = 0
         else:
-          current_tile = 1
+          casilla = 1
       else:
-        # Tile's dead, changes by birth rules
-        if (neighbors > BIRTH_LIMIT):
-          current_tile = 1
+        # La casilla está muerta (es suelo), cambia según las reglas de la vida.
+        if (vecinos > LIMITE_VIDA):
+          casilla = 1
         else:
-          current_tile = 0
-      cellmap_process[x][y] = current_tile
+          casilla = 0
+      cellmap_proc[x][y] = casilla
 
-  cellmap = cellmap_process
+  cellmap = cellmap_proc
 
 
-# Returns the number of 'alive' cells neighboring the param cell
-func _count_alive_neighbors(x: int, y: int) -> int:
-  var count_alive := 0
+# Devuelve el número de casillas vivas en las casillas adyacentes
+func _contar_vecinos_vivos(x: int, y: int) -> int:
+  var vivas := 0
 
   for i in range(-1, 2):
     for j in range(-1, 2):
-      var local_x = x + i
-      var local_y = y + j
+      var x_ady = x + i
+      var y_ady = y + j
 
       if (i == 0 and j == 0):
-        # We're checking our own tile
+        # Esta es nuestra misma casilla
         continue
-      elif (global.casilla_fuera_de_limites(Vector2(local_x, local_y))):
-        # The tile to check is off-limits, count that as a wall
-        count_alive += 1
-      elif (cellmap[local_x][local_y]):
-        count_alive += 1
+      elif (global.casilla_fuera_de_limites(Vector2(x_ady, y_ady))):
+        # La casilla está fuera del mapa, se cuenta como un muro
+        vivas += 1
+      elif (cellmap[x_ady][y_ady]):
+        vivas += 1
 
-  return count_alive
+  return vivas
 
 
-func _close_borders():
-  # Horizontal borders
+func _cerrar_limites():
+  # Límites Horizontales
   for x in global.MAPA_ANCHO:
     tilemap.set_cell(x, -1, 1)
     tilemap.set_cell(x, global.MAPA_ALTO, 1)
-  # Vertical borders
+  # Límites Verticales
   for y in global.MAPA_ALTO:
     tilemap.set_cell(-1, y, 1)
     tilemap.set_cell(global.MAPA_ANCHO, y, 1)
 
 
-# Prints the map onto the screen using its tilemap
-func _print_map():
+# Dibuja el mapa usando el tilemap proporcionado
+func _dibujar_mapa():
   for x in global.MAPA_ANCHO:
     for y in global.MAPA_ALTO:
       tilemap.set_cell(x, y, cellmap[x][y])
 
 
-func _on_Jugador_spawn(position):
-  player_spawn_pos = position
+func _on_Jugador_spawn(spawn):
+  spawn_jugador = spawn
 
 
-func _on_Salida_spawn(position):
-  exit_spawn_pos = position
+func _on_Salida_spawn(spawn):
+  spawn_salida = spawn
 
 
-func _on_Enemigo_spawn(position):
-  enemy_spawn_pos = position
+func _on_Enemigo_spawn(spawn):
+  spawn_enemigo = spawn
 
 
 func _on_salida_alcanzada():

@@ -23,12 +23,6 @@ func _process(_delta):
     audio_stream.volume_db -= global.VOLUMEN_CAMBIO
 
 
-func _on_map_ready():
-  var spawn_pos = global.casilla_a_pixeles_centro(global.random_spawn())
-  position = spawn_pos
-  emit_signal("spawn", spawn_pos)
-
-
 func _on_ExitArea_entered(area):
   if area is Jugador:
     emit_signal("salida_alcanzada")
@@ -45,4 +39,6 @@ func _on_AudioArea_exited(area):
 
 
 func _on_Mapgen_preparado():
-  pass # Replace with function body.
+  var spawn = global.casilla_a_pixeles_centro(global.random_spawn())
+  position = spawn
+  emit_signal("spawn", spawn)
