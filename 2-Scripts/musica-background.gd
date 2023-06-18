@@ -19,11 +19,12 @@ const combat_songlist = [
  ]
 
 onready var animator = $Animator
-onready var calm_node = $Animator/CalmMusic
-onready var combat_node = $Animator/CombatMusic
+onready var calm_node = $Animator/StreamCalma
+onready var combat_node = $Animator/StreamCombate
 
 var calm_volume = 0
-var combat_volume = global.MIN_VOLUME
+var combat_volume = global.VOLUMEN_MINIMO
+
 
 func _ready():
   randomize()
@@ -32,25 +33,6 @@ func _ready():
   calm_node.volume_db = calm_volume
   combat_node.volume_db = combat_volume
   calm_node.play()
-  combat_node.play()
-
-
-func _on_Enemy_calm_music():
-  animator.play("BGMCrossfadeCalm")
-
-
-func _on_Enemy_combat_music():
-  animator.play("BGMCrossfadeCombat")
-
-
-func _on_map_ready():
-  # If the ASPs haven't been created, return
-  if (!calm_node): return
-  if (!combat_node): return
-
-  calm_node.stream = _select_random_song(false)
-  calm_node.play()
-  combat_node.stream = _select_random_song(true)
   combat_node.play()
 
 
@@ -69,3 +51,22 @@ func _select_random_song(type: bool):
     var res = load(path)
     res.set_loop(true)
     return res
+
+
+func _on_musica_calma():
+  animator.play("crossfade-calma")
+
+
+func _on_musica_combate():
+  animator.play("crossfade-combate")
+
+
+func _on_Mapgen_preparado():
+  # If the ASPs haven't been created, return
+  if (!calm_node): return
+  if (!combat_node): return
+
+  calm_node.stream = _select_random_song(false)
+  calm_node.play()
+  combat_node.stream = _select_random_song(true)
+  combat_node.play()

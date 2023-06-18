@@ -1,167 +1,150 @@
 extends Node
 
-const MAP_WIDTH := 48
-const MAP_HEIGHT := 36
-const TILE_SIZE := 16
-const HALF_TILE := TILE_SIZE / 2
+const MAPA_ANCHO := 48
+const MAPA_ALTO := 36
+const TAMANO_CASILLA := 16
+const MEDIA_CASILLA := TAMANO_CASILLA / 2
 
-const MAX_VOLUME := -0.0
-const MIN_VOLUME := -80.0
-const VOLUME_STEP := 5.0
+const VOLUMEN_MAXIMO := -0.0
+const VOLUMEN_MINIMO := -80.0
+const VOLUMEN_CAMBIO := 5.0
 
 var cellmap: Array
-var player_turn := true
 
 
-func tile_to_pixel(tile: Vector2) -> Vector2:
-  return Vector2(tile.x * TILE_SIZE, tile.y * TILE_SIZE)
+# Conversiones entre pixeles de la pantalla y posiciones en la matriz del mapa
+func casilla_a_pixeles(casilla: Vector2) -> Vector2:
+  return Vector2(casilla.x * TAMANO_CASILLA, casilla.y * TAMANO_CASILLA)
 
 
-func tile_to_pixel_center(tile: Vector2) -> Vector2:
-  tile = tile_to_pixel(tile)
-  return Vector2(tile.x + HALF_TILE, tile.y + HALF_TILE)
+func casilla_a_pixeles_centro(casilla: Vector2) -> Vector2:
+  casilla = casilla_a_pixeles(casilla)
+  return Vector2(casilla.x + MEDIA_CASILLA, casilla.y + MEDIA_CASILLA)
 
 
-func pixel_to_tile(coords: Vector2) -> Vector2:
-  return Vector2(int(coords.x / TILE_SIZE), int(coords.y / TILE_SIZE))
+func pixeles_a_casilla(coordenadas: Vector2) -> Vector2:
+  return Vector2(int(coordenadas.x / TAMANO_CASILLA), int(coordenadas.y / TAMANO_CASILLA))
 
 
-func pixel_to_tile_center(coords: Vector2) -> Vector2:
-  coords = pixel_to_tile(coords)
-  return Vector2(coords.x - HALF_TILE, coords.y - HALF_TILE)
-
-# Selects a random spawn position for a thing
+# Devuelve un punto de spawn aleatorio en una casilla de suelo
 func random_spawn() -> Vector2:
   var spawn_x: int
   var spawn_y: int
-  var is_tile_available = 1 # wall
+  var casilla_disponible = 1 # Pared
 
-  while is_tile_available:
-    spawn_x = randi() % MAP_WIDTH
-    spawn_y = randi() % MAP_HEIGHT
-    is_tile_available = cellmap[spawn_x][spawn_y]
+  while casilla_disponible:
+    spawn_x = randi() % MAPA_ANCHO
+    spawn_y = randi() % MAPA_ALTO
+    casilla_disponible = cellmap[spawn_x][spawn_y]
 
   var spawn = Vector2(spawn_x, spawn_y)
   return spawn
 
 
-# astar things
+# Algorito AStar
+onready var astar = AStar.new()
 
-onready var astar_node = AStar.new()
+var inicio_camino = Vector2() setget _set_path_start_position
+var fin_camino = Vector2() setget _set_path_end_position
 
-# The path start and end variables use setter methods
-# You can find them at the bottom of the script
-var path_start_position = Vector2() setget _set_path_start_position
-var path_end_position = Vector2() setget _set_path_end_position
-
-var _point_path = []
+var camino = []
 
 
 func astar_ready():
-  astar_node.clear()
-  var walkable_cells_list = astar_add_walkable_cells()
-  astar_connect_walkable_cells(walkable_cells_list)
+  astar.clear()
+  var casillas_atravesables = _astar_agregar_casillas_atravesables()
+  _astar_conectar_casillas(casillas_atravesables)
 
 
-# Loops through all cells within the map's bounds and
-# adds all points to the astar_node, except the obstacles
-func astar_add_walkable_cells():
-  var points_array = []
-  for y in range(MAP_HEIGHT):
-    for x in range(MAP_WIDTH):
-      if cellmap[x][y]:
+# Recorre todo el mapa y añade a la matriz astar nuevos puntos en las casillas atravesables
+func _astar_agregar_casillas_atravesables():
+  var lista_puntos = []
+  for y in range(MAPA_ALTO):
+    for x in range(MAPA_ANCHO):
+      if cellmap[x][y]: # Si la casilla es un muro, no se puede atravesar
         continue
-      var point = Vector2(x, y)
-      points_array.append(point)
-      # The AStar class references points with indices
-      # Using a function to calculate the index from a point's coordinates
-      # ensures we always get the same index with the same input point
-      var point_index = astar_calculate_point_index(point)
-      # AStar works for both 2d and 3d, so we have to convert the point
-      # coordinates from and to Vector3s
-      astar_node.add_point(point_index, Vector3(point.x, point.y, 0.0))
-  return points_array
+      var punto = Vector2(x, y)
+      lista_puntos.append(punto)
+
+      # La clase AStar hace referencia a sus puntos con índices, por lo tanto,
+      # necesitamos una forma de traducir las coordenadas a un índice y viceversa.
+      # Así cada casilla tiene un id propio, del que se pueden deducir las coordenadas
+      var id_punto = _astar_calcular_id_punto(punto)
+      
+      # Como AStar trabaja tanto con 2D como con 3D, hay que traducir los puntos
+      # a Vector3. Esto solo ocurre aquí.
+      astar.add_point(id_punto, Vector3(punto.x, punto.y, 0.0))
+  return lista_puntos
 
 
-# Once you added all points to the AStar node, you've got to connect them
-# The points don't have to be on a grid: you can use this class
-# to create walkable graphs however you'd like
-# It's a little harder to code at first, but works for 2d, 3d,
-# orthogonal grids, hex grids, tower defense games...
-func astar_connect_walkable_cells(points_array):
-  for point in points_array:
-    var point_index = astar_calculate_point_index(point)
-    # For every cell in the map, we check the one to the top, right.
-    # left and bottom of it. If it's in the map and not an obstalce,
-    # We connect the current point with it
-    var points_relative = PoolVector2Array([
-      Vector2(point.x + 1, point.y),
-      Vector2(point.x - 1, point.y),
-      Vector2(point.x, point.y + 1),
-      Vector2(point.x, point.y - 1)])
-    for point_relative in points_relative:
-      var point_relative_index = astar_calculate_point_index(point_relative)
+# Con los puntos añadidos, toca conectar cada punto con su vecino para crear caminos posibles
+func _astar_conectar_casillas(lista_puntos):
+  for punto in lista_puntos:
+    var id_punto = _astar_calcular_id_punto(punto)
 
-      if is_tile_off_bounds(point_relative):
+    # Para cada casilla, conectamos con las de arriba, abajo, izquierda y derecha
+    var puntos_relativos = PoolVector2Array([
+      Vector2(punto.x + 1, punto.y),
+      Vector2(punto.x - 1, punto.y),
+      Vector2(punto.x, punto.y + 1),
+      Vector2(punto.x, punto.y - 1)])
+
+    for relativo in puntos_relativos:
+      var id_relativo = _astar_calcular_id_punto(relativo)
+      if casilla_fuera_de_limites(relativo):
         continue
-      if not astar_node.has_point(point_relative_index):
+      if not astar.has_point(id_relativo):
         continue
-      # Note the 3rd argument. It tells the astar_node that we want the
-      # connection to be bilateral: from point A to B and B to A
-      # If you set this value to false, it becomes a one-way path
-      # As we loop through all points we can set it to false
-      astar_node.connect_points(point_index, point_relative_index, false)
+      astar.connect_points(id_punto, id_relativo, false)
 
 
-func is_tile_off_bounds(tile: Vector2) -> bool:
+func casilla_fuera_de_limites(casilla: Vector2) -> bool:
   return (
-      tile.x < 0 or tile.x >= global.MAP_WIDTH or
-      tile.y < 0 or tile.y >= global.MAP_HEIGHT
+      casilla.x < 0 or casilla.x >= global.MAPA_ANCHO or
+      casilla.y < 0 or casilla.y >= global.MAPA_ALTO
     )
 
-func astar_calculate_point_index(point):
-  return point.x + MAP_WIDTH * point.y
+func _astar_calcular_id_punto(punto):
+  return punto.x + MAPA_ANCHO * punto.y
 
 
-func astar_find_path(start, end):
-  self.path_start_position = start # world_to_map(world_start)
-  self.path_end_position = end # world_to_map(world_end)
-  _recalculate_path()
-  var path_world = []
-  for point in _point_path:
-    var point_world = tile_to_pixel_center(Vector2(point.x, point.y))
-    path_world.append(point_world)
-  return path_world
+func astar_find_path(inicio, fin):
+  self.inicio_camino = inicio
+  self.fin_camino = fin
+  _calcular_camino()
+  var camino_pixeles = []
+  for punto in camino:
+    var punto_pixeles = casilla_a_pixeles_centro(Vector2(punto.x, punto.y))
+    camino_pixeles.append(punto_pixeles)
+  return camino_pixeles
 
 
-func _recalculate_path():
-  var start_point_index = astar_calculate_point_index(path_start_position)
-  var end_point_index = astar_calculate_point_index(path_end_position)
-  # This method gives us an array of points. Note you need the start and end
-  # points' indices as input
-  _point_path = astar_node.get_point_path(start_point_index, end_point_index)
+func _calcular_camino():
+  var id_inicio = _astar_calcular_id_punto(inicio_camino)
+  var id_fin = _astar_calcular_id_punto(fin_camino)
+  camino = astar.get_point_path(id_inicio, id_fin)
 
 
-# Setters for the start and end path values.
-func _set_path_start_position(value):
-  value = pixel_to_tile(value)
-  if cellmap[value.x][value.y] == 1:
+# Setters para los puntos de inicio y fin
+func _set_path_start_position(punto):
+  punto = pixeles_a_casilla(punto)
+  if cellmap[punto.x][punto.y] == 1:
     return
-  if is_tile_off_bounds(value):
+  if casilla_fuera_de_limites(punto):
     return
 
-  path_start_position = value
-  if path_end_position and path_end_position != path_start_position:
-    _recalculate_path()
+  inicio_camino = punto
+  if fin_camino and fin_camino != inicio_camino:
+    _calcular_camino()
 
 
-func _set_path_end_position(value):
-  value = pixel_to_tile(value)
-  if cellmap[value.x][value.y] == 1:
+func _set_path_end_position(punto):
+  punto = pixeles_a_casilla(punto)
+  if cellmap[punto.x][punto.y] == 1:
     return
-  if is_tile_off_bounds(value):
+  if casilla_fuera_de_limites(punto):
     return
 
-  path_end_position = value
-  if path_start_position != value:
-    _recalculate_path()
+  fin_camino = punto
+  if inicio_camino != punto:
+    _calcular_camino()

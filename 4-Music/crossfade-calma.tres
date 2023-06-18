@@ -1,9 +1,9 @@
 [gd_resource type="Animation" format=2]
 
 [resource]
-resource_name = "BGMCrossfadeCalm"
+resource_name = "crossfade-calma"
 tracks/0/type = "value"
-tracks/0/path = NodePath("Animator/CalmMusic:volume_db")
+tracks/0/path = NodePath("Animator/StreamCalma:volume_db")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -15,7 +15,7 @@ tracks/0/keys = {
 "values": [ -80.0, 0.0 ]
 }
 tracks/1/type = "value"
-tracks/1/path = NodePath("Animator/CombatMusic:volume_db")
+tracks/1/path = NodePath("Animator/StreamCombate:volume_db")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/imported = false

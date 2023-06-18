@@ -1,9 +1,5 @@
-class_name Player
+class_name Jugador
 extends Area2D
-
-const MAX_HEALTH = 5
-const MIN_HEALTH = 0
-var health: int
 
 onready var raycasts = {
   "RayCenter": get_node("RayCenter"),
@@ -22,7 +18,8 @@ var movement = {
   "move_NW": Vector2.UP + Vector2.LEFT,
 }
 
-signal spawned
+signal spawn
+var puntos := 0
 
 
 func _unhandled_input(event):
@@ -31,7 +28,7 @@ func _unhandled_input(event):
       move(dir)
 
 func move(dir):
-  var destination = global.tile_to_pixel(movement[dir])
+  var destination = global.casilla_a_pixeles(movement[dir])
   var collisions = 0
 
   for key in raycasts:
@@ -45,11 +42,11 @@ func move(dir):
     position += destination
 
 
-func _on_map_ready():
-  var spawn_pos = global.tile_to_pixel_center(global.random_spawn())
+func _on_Mapgen_preparado():
+  var spawn_pos = global.casilla_a_pixeles_centro(global.random_spawn())
   position = spawn_pos
-  emit_signal("spawned", spawn_pos)
+  emit_signal("spawn", spawn_pos)
 
 
-func _on_exit_reached():
-  print("i got a point!")
+func _on_Salida_salida_alcanzada():
+  puntos += 1

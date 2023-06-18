@@ -18,7 +18,7 @@ export var DEATH_LIMIT = 3
 
 var cellmap := []
 onready var tilemap := $TileMap
-signal map_ready
+signal preparado
 
 onready var player_spawn_pos: Vector2
 onready var exit_spawn_pos: Vector2
@@ -39,7 +39,7 @@ func _ready():
 
   global.astar_ready()
 
-  emit_signal("map_ready")
+  emit_signal("preparado")
   
   if !_check_spawn_positions():
     return
@@ -69,16 +69,16 @@ func _unhandled_input(event):
 
 # Creates a 2D Array grid
 func _generate_grid():
-  for i in global.MAP_WIDTH:
+  for i in global.MAPA_ANCHO:
     cellmap.append([])
-    for j in global.MAP_HEIGHT:
+    for j in global.MAPA_ALTO:
       cellmap[i].append(0)
 
 
 # Populates the grid with random values
 func _generate_map():
-  for x in range(global.MAP_WIDTH):
-    for y in range(global.MAP_HEIGHT):
+  for x in range(global.MAPA_ANCHO):
+    for y in range(global.MAPA_ALTO):
       if randf() < INITIAL_LIFE_CHANCE:
         cellmap[x][y] = 1
       else:
@@ -90,8 +90,8 @@ func _generate_map():
 func _simulation_step():
   var cellmap_process = cellmap.duplicate(true)
 
-  for x in global.MAP_WIDTH:
-    for y in global.MAP_HEIGHT:
+  for x in global.MAPA_ANCHO:
+    for y in global.MAPA_ALTO:
       var current_tile = cellmap_process[x][y]
       var neighbors = _count_alive_neighbors(x, y)
       if (cellmap[x][y] == 1):
@@ -123,7 +123,7 @@ func _count_alive_neighbors(x: int, y: int) -> int:
       if (i == 0 and j == 0):
         # We're checking our own tile
         continue
-      elif (global.is_tile_off_bounds(Vector2(local_x, local_y))):
+      elif (global.casilla_fuera_de_limites(Vector2(local_x, local_y))):
         # The tile to check is off-limits, count that as a wall
         count_alive += 1
       elif (cellmap[local_x][local_y]):
@@ -134,33 +134,33 @@ func _count_alive_neighbors(x: int, y: int) -> int:
 
 func _close_borders():
   # Horizontal borders
-  for x in global.MAP_WIDTH:
+  for x in global.MAPA_ANCHO:
     tilemap.set_cell(x, -1, 1)
-    tilemap.set_cell(x, global.MAP_HEIGHT, 1)
+    tilemap.set_cell(x, global.MAPA_ALTO, 1)
   # Vertical borders
-  for y in global.MAP_HEIGHT:
+  for y in global.MAPA_ALTO:
     tilemap.set_cell(-1, y, 1)
-    tilemap.set_cell(global.MAP_WIDTH, y, 1)
+    tilemap.set_cell(global.MAPA_ANCHO, y, 1)
 
 
 # Prints the map onto the screen using its tilemap
 func _print_map():
-  for x in global.MAP_WIDTH:
-    for y in global.MAP_HEIGHT:
+  for x in global.MAPA_ANCHO:
+    for y in global.MAPA_ALTO:
       tilemap.set_cell(x, y, cellmap[x][y])
 
 
-func _on_exit_reached():
-  _ready()
-
-
-func _on_Player_spawned(position: Vector2):
+func _on_Jugador_spawn(position):
   player_spawn_pos = position
 
 
-func _on_Exit_spawned(position: Vector2):
+func _on_Salida_spawn(position):
   exit_spawn_pos = position
 
 
-func _on_Enemy_spawned(position: Vector2):
+func _on_Enemigo_spawn(position):
   enemy_spawn_pos = position
+
+
+func _on_salida_alcanzada():
+  _ready()
