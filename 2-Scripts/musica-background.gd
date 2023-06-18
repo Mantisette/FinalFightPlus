@@ -1,52 +1,49 @@
 extends Node2D
 
-const calm_songlist = [
-  "res://4-Music/calm-1-larnii.mp3",
-  "res://4-Music/calm-2-larnii.mp3",
-  "res://4-Music/calm-3-larnii.mp3",
-  "res://4-Music/calm-4-larnii.mp3",
-  "res://4-Music/calm-5-larnii.mp3",
-  "res://4-Music/calm-6-larnii.mp3",
-  "res://4-Music/calm-7-larnii.mp3",
-  "res://4-Music/calm-8-CoQ.mp3"
+const lista_calma = [
+  "res://4-Musica/calm-1-larnii.mp3",
+  "res://4-Musica/calm-2-larnii.mp3",
+  "res://4-Musica/calm-3-larnii.mp3",
+  "res://4-Musica/calm-4-larnii.mp3",
+  "res://4-Musica/calm-5-larnii.mp3",
+  "res://4-Musica/calm-6-larnii.mp3",
+  "res://4-Musica/calm-7-larnii.mp3",
+  "res://4-Musica/calm-8-CoQ.mp3"
  ]
 
-const combat_songlist = [
-  "res://4-Music/combat-1-larnii.mp3",
-  "res://4-Music/combat-2-larnii.mp3",
-  "res://4-Music/combat-3-larnii.mp3",
-  "res://4-Music/combat-4-larnii.mp3"
+const lista_combate = [
+  "res://4-Musica/combat-1-larnii.mp3",
+  "res://4-Musica/combat-2-larnii.mp3",
+  "res://4-Musica/combat-3-larnii.mp3",
+  "res://4-Musica/combat-4-larnii.mp3"
  ]
 
 onready var animator = $Animator
-onready var calm_node = $Animator/StreamCalma
-onready var combat_node = $Animator/StreamCombate
-
-var calm_volume = 0
-var combat_volume = global.VOLUMEN_MINIMO
+onready var stream_calma = $Animator/StreamCalma
+onready var stream_combate = $Animator/StreamCombate
 
 
 func _ready():
   randomize()
-  calm_node.stream = _select_random_song(false)
-  combat_node.stream = _select_random_song(true)
-  calm_node.volume_db = calm_volume
-  combat_node.volume_db = combat_volume
-  calm_node.play()
-  combat_node.play()
+  stream_calma.stream = _cancion_aleatoria(false)
+  stream_combate.stream = _cancion_aleatoria(true)
+  stream_calma.volume_db = global.VOLUMEN_MAXIMO
+  stream_combate.volume_db = global.VOLUMEN_MINIMO
+  stream_calma.play()
+  stream_combate.play()
 
 
-func _select_random_song(type: bool):
-  # Choose a song
+func _cancion_aleatoria(combate: bool):
+  # Elegir cancion
   var path: String
-  if !type:
-    var size = calm_songlist.size()
-    path = calm_songlist[randi() % size]
+  if !combate:
+    var size = lista_calma.size()
+    path = lista_calma[randi() % size]
   else:
-    var size = combat_songlist.size()
-    path = combat_songlist[randi() % size]
+    var size = lista_combate.size()
+    path = lista_combate[randi() % size]
 
-  # Load it to the ASP
+  # Cargar el recurso
   if File.new().file_exists(path):
     var res = load(path)
     res.set_loop(true)
@@ -61,12 +58,12 @@ func _on_musica_combate():
   animator.play("crossfade-combate")
 
 
-func _on_Mapgen_preparado():
-  # If the ASPs haven't been created, return
-  if (!calm_node): return
-  if (!combat_node): return
+func _on_Mapgen_preparado(): # Cada vez que se cambia de nivel, se randomiza la música
+  # Si aún no se han instanciado los streams, no se puede hacer nada
+  if (!stream_calma): return
+  if (!stream_combate): return
 
-  calm_node.stream = _select_random_song(false)
-  calm_node.play()
-  combat_node.stream = _select_random_song(true)
-  combat_node.play()
+  stream_calma.stream = _cancion_aleatoria(false)
+  stream_calma.play()
+  stream_combate.stream = _cancion_aleatoria(true)
+  stream_combate.play()

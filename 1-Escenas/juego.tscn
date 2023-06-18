@@ -1,0 +1,31 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://1-Escenas/mapgen.tscn" type="PackedScene" id=1]
+[ext_resource path="res://1-Escenas/jugador.tscn" type="PackedScene" id=2]
+[ext_resource path="res://1-Escenas/musica-background.tscn" type="PackedScene" id=3]
+[ext_resource path="res://1-Escenas/enemigo.tscn" type="PackedScene" id=4]
+[ext_resource path="res://1-Escenas/salida.tscn" type="PackedScene" id=5]
+
+[node name="Juego" type="Node2D"]
+
+[node name="Mapgen" parent="." instance=ExtResource( 1 )]
+
+[node name="Jugador" parent="." instance=ExtResource( 2 )]
+
+[node name="Salida" parent="." instance=ExtResource( 5 )]
+
+[node name="Enemigo" parent="." instance=ExtResource( 4 )]
+
+[node name="Musica" parent="." instance=ExtResource( 3 )]
+
+[connection signal="preparado" from="Mapgen" to="Jugador" method="_on_Mapgen_preparado"]
+[connection signal="preparado" from="Mapgen" to="Salida" method="_on_Mapgen_preparado"]
+[connection signal="preparado" from="Mapgen" to="Enemigo" method="_on_Mapgen_preparado"]
+[connection signal="preparado" from="Mapgen" to="Musica" method="_on_Mapgen_preparado"]
+[connection signal="spawn" from="Jugador" to="Mapgen" method="_on_Jugador_spawn"]
+[connection signal="salida_alcanzada" from="Salida" to="Mapgen" method="_on_salida_alcanzada"]
+[connection signal="salida_alcanzada" from="Salida" to="Jugador" method="_on_Salida_salida_alcanzada"]
+[connection signal="spawn" from="Salida" to="Mapgen" method="_on_Salida_spawn"]
+[connection signal="musica_calma" from="Enemigo" to="Musica" method="_on_musica_calma"]
+[connection signal="musica_combate" from="Enemigo" to="Musica" method="_on_musica_combate"]
+[connection signal="spawn" from="Enemigo" to="Mapgen" method="_on_Enemigo_spawn"]
